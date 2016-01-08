@@ -6,15 +6,11 @@ import re
 
 
 class Data:
-	# Get data from *.csv and convert it to a dataframe
-	def get_csv(self, full_file_name, cols):
-		header_length = 22
-		return pd.read_csv(full_file_name, header= header_length, delimiter=r"\s+", names=cols)
 
 	# This set of tasks gets called when initializing the class
 	def __init__(self):
 		# Setting up a 2D empty list
-		self.sample = [[] for i in range(4)]
+		self.sample = [[] for x in range(4)]
 
 		# Goes through each of the files in ascending order and converts a list of times and intensities into a dataframe
 		for full_file_name in sorted(glob.glob("./gc/*.txt")):
@@ -26,18 +22,17 @@ class Data:
 
 			# Create the data frame if it is the first sample in the list
 			# Otherwise concat the current data as a data frame with the already existing data frame for that sample
-			if current_number <= 4:
+			if current_number < 5:
 				self.sample[current_number - 1] = self.get_csv(full_file_name, cols)
-			elif current_number % 4 == 1:
-				self.sample[0] = pd.concat([self.sample[0], self.get_csv(full_file_name, cols)], axis=1, join='inner')
-			elif current_number % 4 == 2:
-				self.sample[1] = pd.concat([self.sample[1], self.get_csv(full_file_name, cols)], axis=1, join='inner')
-			elif current_number % 4 == 3:
-				self.sample[2] = pd.concat([self.sample[2], self.get_csv(full_file_name, cols)], axis=1, join='inner')
-			elif current_number % 4 == 0:
-				self.sample[3] = pd.concat([self.sample[3], self.get_csv(full_file_name, cols)], axis=1, join='inner')
+			else:
+				self.sample[(current_number -1 ) % 4] = pd.concat([self.sample[(current_number -1) % 4], self.get_csv(full_file_name, cols)], axis=1, join='inner')
 
 		self.iterationNumber = int(current_number / 4)
+
+	# Get data from *.csv and convert it to a dataframe
+	def get_csv(self, full_file_name, cols):
+		header_length = 22
+		return pd.read_csv(full_file_name, header= header_length, delimiter=r"\s+", names=cols)
 
 	# Display entire 2D List
 	def get_all(self):
