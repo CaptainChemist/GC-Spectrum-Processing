@@ -8,14 +8,14 @@ The data consists of a header and series of times and intensities. Four samples 
 
 Data Processing Workflow
 =========================
-1) Loop through all of the GC spectrum in the folder, skip the 22 line header and import the data, which is a time vs. intensity array as a pandas data frame (N x 2).
+1. Loop through all of the GC spectrum in the folder, skip the 22 line header and import the data, which is a time vs. intensity array as a pandas data frame (N x 2).
 
-2) Sort the data frames based on the number of the sample. Since we have 4 samples, spectra that are N % 4 == 1 will all be from the first sample for example and we can use this to append the data frames to the right sample data frame (N x Number of Iterations per Sample). 
+2. Sort the data frames based on the number of the sample. Since we have 4 samples, spectra that are N % 4 == 1 will all be from the first sample for example and we can use this to append the data frames to the right sample data frame (N x Number of Iterations per Sample). 
 
-3) This will create a data set that we can address individually by calling dataSet.getSample(N), where N is the sample number.
+3. This will create a data set that we can address individually by calling dataSet.getSample(N), where N is the sample number.
 
-4) The script will also load in calibration samples for both reactant and products to determine:
+4. The script will also load in calibration samples for both reactant and products to determine:
 	a) What time a molecule will desorb from the column
 	b) How the integrated intensity directly relates to concentration
 
-5) Once the script determines the calibration curve, it will calculate an absolute concentration for each molecule in each sample as it is sampled over time. This allows us to create a plot to track molecule concentration over time for each sample.
+5. Once the script determines the calibration curve, it will calculate an absolute concentration for each molecule in each sample as it is sampled over time. This allows us to create a plot to track molecule concentration over time for each sample.
