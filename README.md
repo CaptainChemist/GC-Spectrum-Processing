@@ -28,5 +28,14 @@ Functions
 
 First call the class data_set = Data()
 
-data_set.save_sample(0) this will save all spectrum from a particular sample as one csv in the folder of the script
+data_set.save_sample(N) - this will get all of the iterations of one sample and save it as a csv
 
+data_set.save_all() - this will save all samples as individual csv files
+
+data_set.get_sample(N) - this will return one sample as a dataframe
+
+data_set.get_all() - this will return a list of dataframes for each sample
+
+data_set.get_iteration_number() - this will determine how many iterations of each sample are in the folder
+
+data_set.plot_all() - this will plot all plots using matplotlib
