@@ -15,6 +15,7 @@ Data Processing Workflow
 3. This will create a data set that we can address individually by calling dataSet.getSample(N), where N is the sample number.
 
 4. The script will also load in calibration samples for both reactant and products to determine:
+
   a. What time a molecule will desorb from the column
   b. How the integrated intensity directly relates to concentration
 
