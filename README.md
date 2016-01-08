@@ -17,6 +17,7 @@ Data Processing Workflow
 4. The script will also load in calibration samples for both reactant and products to determine:
 
   a. What time a molecule will desorb from the column
+  
   b. How the integrated intensity directly relates to concentration
 
 5. Once the script determines the calibration curve, it will calculate an absolute concentration for each molecule in each sample as it is sampled over time. This allows us to create a plot to track molecule concentration over time for each sample.
