@@ -3,31 +3,37 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 import re
-import os
-import fnmatch
 
 number_of_samples = 4
-number_of_molecules = 2
-number_of_concentrations = 3
-number_of_ref_peaks = 1
-
 
 class Data:
 
 	# This set of tasks gets called when initializing the class
 	def __init__(self):
-		#self.create_calibration()
-		self.aggregate_data()
+		self.create_calibration()
+		print self.control[1].name
+		#self.aggregate_data()
 
 
 	def create_calibration(self):
-		self.calibration = [[] for x in range(number_of_molecules * number_of_concentrations + number_of_ref_peaks)]
+		self.control = [[] for x in range(len(glob.glob("./gc/controls/*.txt")))]
+		current_list = 0
 
-		configfiles = [os.path.join(dirpath, f)
-		               for dirpath, dirnames, files in os.walk("./gc/controls/")
-		               for f in fnmatch.filter(files, '*.txt')]
+		for full_file_name in sorted(glob.glob("./gc/controls/*.txt")):
 
-		print configfiles
+			if re.findall('internal_ref*',full_file_name):
+				cols = ['internal_ref_time','internal_ref_intensity']
+				self.control[current_list] = self.get_csv(full_file_name, cols)
+				self.control[current_list].name = str(re.findall('ref\_([a-zA-Z0-9]*)', full_file_name)[0])
+				self.control[current_list].type = 'control'
+				current_list = current_list + 1
+			else:
+				self.control[current_list] = self.get_csv(full_file_name)
+				self.control[current_list].name = str(re.findall('\_([a-zA-Z0-9]*)', full_file_name)[0])
+				self.control[current_list].type = int(re.findall('([0-9]*)\_', full_file_name)[-1])
+				current_list = current_list + 1
+
+
 
 
 	# Construct the data array
@@ -54,9 +60,12 @@ class Data:
 		self.iterationNumber = int(current_number / number_of_samples)
 
 	# Get data from *.csv and convert it to a dataframe
-	def get_csv(self, full_file_name, cols):
+	def get_csv(self, full_file_name, cols= 'empty'):
 		header_length = 22
-		return pd.read_csv(full_file_name, header= header_length, delimiter=r"\s+", names=cols)
+		if cols == 'empty':
+			return pd.read_csv(full_file_name, header= header_length, delimiter=r"\s+")
+		else:
+			return pd.read_csv(full_file_name, header= header_length, delimiter=r"\s+", names=cols)
 
 	# Saves one sample to *.csv file
 	def save_sample(self, value):
@@ -96,6 +105,6 @@ class Data:
 
 
 data_set = Data()
-data_set.save_all()
-data_set.plot_all()
+#data_set.save_all()
+#data_set.plot_all()
 
