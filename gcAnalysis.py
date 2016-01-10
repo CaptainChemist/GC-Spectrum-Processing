@@ -3,38 +3,58 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 import re
+import peakdetect
 
 number_of_samples = 4
+
+# 2) Find the reactant peak elution time for the smallest concentration sample (min, max, center)
+# 3) Calculate the reactant peak
 
 class Data:
 
 	# This set of tasks gets called when initializing the class
 	def __init__(self):
+		self.aggregate_calibration()
 		self.create_calibration()
-		print self.control[1].name
 		#self.aggregate_data()
 
-
 	def create_calibration(self):
+		self.standard_times = {}
+
+		for run in self.control:
+			if run.type == 'control':
+				peaks = peakdetect.peakdetect(run.intensity, run.time)
+				self.standard_times['control'] = float([peaks[0][1][0]][0])
+			elif run.type == 4000:
+				peaks = peakdetect.peakdetect(run.intensity, run.time)[0]
+
+				for peak in peaks:
+					if peak[0] > 3.5:
+						self.standard_times[run.name] = float(peak[0])
+						break
+
+		#print self.standard_times
+		#plt.show()
+		#plt.vlines(x=[1,2,3], ymin=0, ymax= 1000000, color='r')
+
+
+	# Construct the control list of data frames
+	def aggregate_calibration(self):
 		self.control = [[] for x in range(len(glob.glob("./gc/controls/*.txt")))]
 		current_list = 0
+		cols = ['time','intensity']
 
 		for full_file_name in sorted(glob.glob("./gc/controls/*.txt")):
+			self.control[current_list] = self.get_csv(full_file_name, cols)
 
 			if re.findall('internal_ref*',full_file_name):
-				cols = ['internal_ref_time','internal_ref_intensity']
-				self.control[current_list] = self.get_csv(full_file_name, cols)
 				self.control[current_list].name = str(re.findall('ref\_([a-zA-Z0-9]*)', full_file_name)[0])
 				self.control[current_list].type = 'control'
-				current_list = current_list + 1
 			else:
-				self.control[current_list] = self.get_csv(full_file_name)
 				self.control[current_list].name = str(re.findall('\_([a-zA-Z0-9]*)', full_file_name)[0])
 				self.control[current_list].type = int(re.findall('([0-9]*)\_', full_file_name)[-1])
-				current_list = current_list + 1
 
-
-
+			current_list = current_list + 1
 
 	# Construct the data array
 	def aggregate_data(self):
