@@ -27,22 +27,27 @@ class Data:
 		self.get_times()
 		self.create_integration_table()
 
+		self.calibration_curves = pd.DataFrame()
 		for molecule in self.standard_integration_table:
-			print molecule
-			self.create_calibration_curve(self.standard_integration_table[molecule].keys(),
-			                              self.standard_integration_table[molecule].values,
-			                              poly_calibration_fit_order)
+			one_run = self.create_calibration_curve(
+						self.standard_integration_table[molecule].keys(),
+			      self.standard_integration_table[molecule].values,
+			      poly_calibration_fit_order)
+			one_run.columns = [molecule]
+			self.calibration_curves = pd.concat([self.calibration_curves, one_run], axis=1)
+			print one_run
 
+			print self.calibration_curves
 	def create_calibration_curve(self, time, intensity, order):
-		print time
-		print intensity
 		x_new = np.arange(0, 5000, 1)
 		coefs = poly.polyfit(time, intensity, order)
 		ffit = poly.polyval(x_new, coefs)
 
-		plt.scatter(intensity, time)
-		plt.plot(ffit, x_new)
-		plt.show()
+		return pd.DataFrame(data=ffit, index=x_new)
+
+		#plt.scatter(intensity, time)
+		#plt.plot(ffit, x_new)
+		#plt.show()
 
 	def create_integration_table(self):
 		# Find the concentrations and molecules present and create an empty calibration dataframe
@@ -57,9 +62,7 @@ class Data:
 
 		# Loop over the concentration calibration data and extract integrated intensities
 		for molecule in self.control:
-			if molecule.type == 'control':
-				background = []
-			else:
+			if molecule.type != 'control':
 				self.standard_integration_table[molecule.name][molecule.type] \
 					= self.calc_area(molecule.time, molecule.intensity,
 					                 self.standard_times[molecule.name], integration_range)
