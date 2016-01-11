@@ -7,21 +7,39 @@ import re
 import peakdetect
 
 number_of_samples = 4
-integration_range = 0.2
+integration_range = 0.3
 poly_calibration_fit_order = 2
-
-
-# 2) Find the reactant peak elution time for the smallest concentration sample (min, max, center)
-# 3) Calculate the reactant peak
-
+points_in_poly_fit = 5000
+concentration_to_find_time = 500
 
 class Data:
 	# This set of tasks gets called when initializing the class
 	def __init__(self):
 		self.aggregate_calibration()
 		self.create_calibration()
+		self.aggregate_data()
+		self.convert_data_to_concentration()
 
-	# self.aggregate_data()
+	def convert_data_to_concentration(self):
+		molecules = self.standard_times.keys()
+		runs = np.arange(0, self.iterationNumber-1, 1)
+		one_table = pd.DataFrame(index= runs, columns= molecules).fillna(0)
+		intensity_table = [one_table for x in range(number_of_samples)]
+
+		for molecule in molecules:
+			i = -1
+			for sample in self.sample:
+				i = i + 1
+				for run in range(self.iterationNumber):
+					intensity_table[i][molecule][run] = \
+						self.calc_area(sample['t'+str(run)], sample['i'+str(run)],
+					  self.standard_times[molecule], integration_range)
+
+		print intensity_table
+				#Figure out how to address the t0 and i0s individually and push them through
+				# the calc_area function to get an integrated intensity for both molecules
+				# Then run each integrated intensity through a function to find the minimum
+				#with the calibration file and then get the X and then save it as a concentration!
 
 	def create_calibration(self):
 		self.get_times()
@@ -35,20 +53,16 @@ class Data:
 			      poly_calibration_fit_order)
 			one_run.columns = [molecule]
 			self.calibration_curves = pd.concat([self.calibration_curves, one_run], axis=1)
-			print one_run
 
-			print self.calibration_curves
+	# This creates a single calibration curve given a time and intensity array and a fitting order
 	def create_calibration_curve(self, time, intensity, order):
-		x_new = np.arange(0, 5000, 1)
+		x_new = np.arange(0, points_in_poly_fit, .1)
 		coefs = poly.polyfit(time, intensity, order)
 		ffit = poly.polyval(x_new, coefs)
 
 		return pd.DataFrame(data=ffit, index=x_new)
 
-		#plt.scatter(intensity, time)
-		#plt.plot(ffit, x_new)
-		#plt.show()
-
+	# This creates a table of integrated intensities for each molecule and concentration
 	def create_integration_table(self):
 		# Find the concentrations and molecules present and create an empty calibration dataframe
 		concentrations = []
@@ -87,7 +101,7 @@ class Data:
 			if run.type == 'control':
 				peaks = peakdetect.peakdetect(run.intensity, run.time)
 				self.standard_times['control'] = float([peaks[0][1][0]][0])
-			elif run.type == 4000:
+			elif run.type == concentration_to_find_time:
 				peaks = peakdetect.peakdetect(run.intensity, run.time)[0]
 
 				for peak in peaks:
@@ -116,7 +130,7 @@ class Data:
 	# Construct the data array
 	def aggregate_data(self):
 		# Setting up a 2D empty list
-		self.sample = [[] for x in range(number_of_samples)]
+		self.sample = [pd.DataFrame() for x in range(number_of_samples)]
 
 		# Goes through each of the files in ascending order and converts a list of times and intensities into a dataframe
 		for full_file_name in sorted(glob.glob("./gc/*.txt")):
@@ -128,15 +142,13 @@ class Data:
 			        'i' + str(int((current_number - 1) / number_of_samples))]
 
 			# Create a data frame for each sample and then concat onto it for future samplings of that sample
-			if current_number <= number_of_samples:
-				self.sample[current_number - 1] = self.get_csv(full_file_name, cols)
-			else:
-				self.sample[(current_number - 1) % number_of_samples] = \
-					pd.concat([self.sample[(current_number - 1) % number_of_samples], self.get_csv(full_file_name, cols)], axis=1,
-					          join='inner')
+			self.sample[(current_number - 1) % number_of_samples] = \
+				pd.concat([self.sample[(current_number - 1) % number_of_samples], self.get_csv(full_file_name, cols)], axis=1, join='inner')
 
 		self.iterationNumber = int(current_number / number_of_samples)
 
+	####################################################################################################
+	######################################PUBLIC API FUNCTION CALLS#####################################
 	# Get data from *.csv and convert it to a dataframe
 	def get_csv(self, full_file_name, cols='empty'):
 		header_length = 22
@@ -166,6 +178,22 @@ class Data:
 	def get_iteration_number(self):
 		return self.iterationNumber
 
+	def get_calibration_curves(self):
+		return self.calibration_curves
+
+	def get_integration_table(self):
+		return self.standard_integration_table
+
+	def get_standard_times(self):
+		return self.standard_times
+
+	def plot_integration_table(self):
+		for molecule in self.standard_integration_table:
+			print self.standard_integration_table[molecule]
+			plt.scatter(self.standard_integration_table[molecule],self.standard_integration_table.index)
+			plt.plot(self.calibration_curves[molecule], self.calibration_curves.index)
+		plt.show()
+
 	def plot_all(self):
 		plt.close('all')
 		f, (ax0, ax1, ax2, ax3) = plt.subplots(4, sharex=True, sharey=True)
@@ -183,5 +211,7 @@ class Data:
 
 
 data_set = Data()
-# data_set.save_all()
-# data_set.plot_all()
+print(data_set.get_standard_times())
+print(data_set.get_integration_table())
+#data_set.plot_integration_table()
+#data_set.plot_all()
