@@ -37,14 +37,17 @@ class Data:
 		#Loop over the concentration calibration data and extract integrated intensities
 		for molecule in self.control:
 			if molecule.type != 'control':
-				self.calc_area(np.array(molecule.time), np.array(molecule.intensity), self.standard_times[molecule.name], integration_range)
+				self.standard_integration_table[molecule.name][molecule.type]\
+					= self.calc_area(molecule.time, molecule.intensity,
+				    self.standard_times[molecule.name], integration_range)
 
 	def calc_area(self,time,intensity,peak_center,integration_range):
-		start = np.argmin(abs(time - ( peak_center - integration_range )))
-		end = np.argmin(abs(time - ( peak_center + integration_range )))
+		start = np.argmin(abs(np.array(time) - (peak_center - integration_range)))
+		end = np.argmin(abs(np.array(time) - (peak_center + integration_range)))
 		xs = np.array(time[start:end])
 		ys = np.array(intensity[start:end])
 		integrated_intensity = np.trapz(ys, xs)
+		print integrated_intensity
 		return integrated_intensity
 
 	def get_times(self):
