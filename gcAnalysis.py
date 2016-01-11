@@ -6,6 +6,7 @@ import re
 import peakdetect
 
 number_of_samples = 4
+integration_range = 0.2
 
 # 2) Find the reactant peak elution time for the smallest concentration sample (min, max, center)
 # 3) Calculate the reactant peak
@@ -19,6 +20,34 @@ class Data:
 		#self.aggregate_data()
 
 	def create_calibration(self):
+		self.get_times()
+		self.create_integration_table()
+
+	def create_integration_table(self):
+		#Find the concentrations and molecules present and create an empty calibration dataframe
+		concentrations =[]
+		molecules = []
+		for run in self.control:
+			if run.type not in concentrations and run.type != 'control':
+				concentrations.append(run.type)
+			if run.name not in molecules and run.type != 'control':
+				molecules.append(run.name)
+		self.standard_integration_table = pd.DataFrame(index=concentrations, columns=molecules).fillna(0)
+
+		#Loop over the concentration calibration data and extract integrated intensities
+		for molecule in self.control:
+			if molecule.type != 'control':
+				self.calc_area(np.array(molecule.time), np.array(molecule.intensity), self.standard_times[molecule.name], integration_range)
+
+	def calc_area(self,time,intensity,peak_center,integration_range):
+		start = np.argmin(abs(time - ( peak_center - integration_range )))
+		end = np.argmin(abs(time - ( peak_center + integration_range )))
+		xs = np.array(time[start:end])
+		ys = np.array(intensity[start:end])
+		integrated_intensity = np.trapz(ys, xs)
+		return integrated_intensity
+
+	def get_times(self):
 		self.standard_times = {}
 
 		for run in self.control:
@@ -32,11 +61,6 @@ class Data:
 					if peak[0] > 3.5:
 						self.standard_times[run.name] = float(peak[0])
 						break
-
-		#print self.standard_times
-		#plt.show()
-		#plt.vlines(x=[1,2,3], ymin=0, ymax= 1000000, color='r')
-
 
 	# Construct the control list of data frames
 	def aggregate_calibration(self):
