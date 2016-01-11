@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import numpy.polynomial.polynomial as poly
 import matplotlib.pyplot as plt
 import glob
 import re
@@ -7,25 +8,45 @@ import peakdetect
 
 number_of_samples = 4
 integration_range = 0.2
+poly_calibration_fit_order = 2
+
 
 # 2) Find the reactant peak elution time for the smallest concentration sample (min, max, center)
 # 3) Calculate the reactant peak
 
-class Data:
 
+class Data:
 	# This set of tasks gets called when initializing the class
 	def __init__(self):
 		self.aggregate_calibration()
 		self.create_calibration()
-		#self.aggregate_data()
+
+	# self.aggregate_data()
 
 	def create_calibration(self):
 		self.get_times()
 		self.create_integration_table()
 
+		for molecule in self.standard_integration_table:
+			print molecule
+			self.create_calibration_curve(self.standard_integration_table[molecule].keys(),
+			                              self.standard_integration_table[molecule].values,
+			                              poly_calibration_fit_order)
+
+	def create_calibration_curve(self, time, intensity, order):
+		print time
+		print intensity
+		x_new = np.arange(0, 5000, 1)
+		coefs = poly.polyfit(time, intensity, order)
+		ffit = poly.polyval(x_new, coefs)
+
+		plt.scatter(intensity, time)
+		plt.plot(ffit, x_new)
+		plt.show()
+
 	def create_integration_table(self):
-		#Find the concentrations and molecules present and create an empty calibration dataframe
-		concentrations =[]
+		# Find the concentrations and molecules present and create an empty calibration dataframe
+		concentrations = []
 		molecules = []
 		for run in self.control:
 			if run.type not in concentrations and run.type != 'control':
@@ -34,22 +55,28 @@ class Data:
 				molecules.append(run.name)
 		self.standard_integration_table = pd.DataFrame(index=concentrations, columns=molecules).fillna(0)
 
-		#Loop over the concentration calibration data and extract integrated intensities
+		# Loop over the concentration calibration data and extract integrated intensities
 		for molecule in self.control:
-			if molecule.type != 'control':
-				self.standard_integration_table[molecule.name][molecule.type]\
+			if molecule.type == 'control':
+				background = []
+			else:
+				self.standard_integration_table[molecule.name][molecule.type] \
 					= self.calc_area(molecule.time, molecule.intensity,
-				    self.standard_times[molecule.name], integration_range)
+					                 self.standard_times[molecule.name], integration_range)
 
-	def calc_area(self,time,intensity,peak_center,integration_range):
+	# Calculates the area of a section of a X,Y 1D plot based on peak center and width
+	def calc_area(self, time, intensity, peak_center, integration_range):
 		start = np.argmin(abs(np.array(time) - (peak_center - integration_range)))
 		end = np.argmin(abs(np.array(time) - (peak_center + integration_range)))
 		xs = np.array(time[start:end])
 		ys = np.array(intensity[start:end])
-		integrated_intensity = np.trapz(ys, xs)
-		print integrated_intensity
+		slope = (ys[-1] - ys[0]) / (xs[-1] - xs[0])
+		baseline = slope * (xs - xs[0]) + ys[0]
+		integrated_intensity = np.trapz(ys - baseline, xs)
+
 		return integrated_intensity
 
+	# Gets the elution times for each standard and puts it in a table
 	def get_times(self):
 		self.standard_times = {}
 
@@ -69,12 +96,12 @@ class Data:
 	def aggregate_calibration(self):
 		self.control = [[] for x in range(len(glob.glob("./gc/controls/*.txt")))]
 		current_list = 0
-		cols = ['time','intensity']
+		cols = ['time', 'intensity']
 
 		for full_file_name in sorted(glob.glob("./gc/controls/*.txt")):
 			self.control[current_list] = self.get_csv(full_file_name, cols)
 
-			if re.findall('internal_ref*',full_file_name):
+			if re.findall('internal_ref*', full_file_name):
 				self.control[current_list].name = str(re.findall('ref\_([a-zA-Z0-9]*)', full_file_name)[0])
 				self.control[current_list].type = 'control'
 			else:
@@ -97,22 +124,23 @@ class Data:
 			cols = ['t' + str(int((current_number - 1) / number_of_samples)),
 			        'i' + str(int((current_number - 1) / number_of_samples))]
 
-			#Create a data frame for each sample and then concat onto it for future samplings of that sample
+			# Create a data frame for each sample and then concat onto it for future samplings of that sample
 			if current_number <= number_of_samples:
 				self.sample[current_number - 1] = self.get_csv(full_file_name, cols)
 			else:
 				self.sample[(current_number - 1) % number_of_samples] = \
-					pd.concat([self.sample[(current_number - 1) % number_of_samples], self.get_csv(full_file_name, cols)], axis=1, join='inner')
+					pd.concat([self.sample[(current_number - 1) % number_of_samples], self.get_csv(full_file_name, cols)], axis=1,
+					          join='inner')
 
 		self.iterationNumber = int(current_number / number_of_samples)
 
 	# Get data from *.csv and convert it to a dataframe
-	def get_csv(self, full_file_name, cols= 'empty'):
+	def get_csv(self, full_file_name, cols='empty'):
 		header_length = 22
 		if cols == 'empty':
-			return pd.read_csv(full_file_name, header= header_length, delimiter=r"\s+")
+			return pd.read_csv(full_file_name, header=header_length, delimiter=r"\s+")
 		else:
-			return pd.read_csv(full_file_name, header= header_length, delimiter=r"\s+", names=cols)
+			return pd.read_csv(full_file_name, header=header_length, delimiter=r"\s+", names=cols)
 
 	# Saves one sample to *.csv file
 	def save_sample(self, value):
@@ -152,6 +180,5 @@ class Data:
 
 
 data_set = Data()
-#data_set.save_all()
-#data_set.plot_all()
-
+# data_set.save_all()
+# data_set.plot_all()
