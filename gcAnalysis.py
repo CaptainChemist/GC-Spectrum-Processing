@@ -7,10 +7,11 @@ import re
 import peakdetect
 
 number_of_samples = 4
-integration_range = 0.3
+integration_range = 0.15
 poly_calibration_fit_order = 2
 points_in_poly_fit = 5000
 concentration_to_find_time = 500
+
 
 class Data:
 	# This set of tasks gets called when initializing the class
@@ -23,8 +24,7 @@ class Data:
 	def convert_data_to_concentration(self):
 		molecules = self.standard_times.keys()
 		runs = np.arange(0, self.iterationNumber-1, 1)
-		one_table = pd.DataFrame(index= runs, columns= molecules).fillna(0)
-		intensity_table = [one_table for x in range(number_of_samples)]
+		intensity_table = [pd.DataFrame(index=runs, columns=molecules).fillna(0) for x in range(number_of_samples)]
 
 		for molecule in molecules:
 			i = -1
@@ -32,14 +32,21 @@ class Data:
 				i = i + 1
 				for run in range(self.iterationNumber):
 					intensity_table[i][molecule][run] = \
-						self.calc_area(sample['t'+str(run)], sample['i'+str(run)],
-					  self.standard_times[molecule], integration_range)
+						self.get_concentration(
+								self.calc_area(sample['t'+str(run)], sample['i'+str(run)],
+					      self.standard_times[molecule], integration_range),molecule)
+
+
 
 		print intensity_table
-				#Figure out how to address the t0 and i0s individually and push them through
+
+			# Figure out how to address the t0 and i0s individually and push them through
 				# the calc_area function to get an integrated intensity for both molecules
 				# Then run each integrated intensity through a function to find the minimum
-				#with the calibration file and then get the X and then save it as a concentration!
+				# with the calibration file and then get the X and then save it as a concentration!
+	def get_concentration(self, concentration, molecule):
+
+		return concentration
 
 	def create_calibration(self):
 		self.get_times()
@@ -89,7 +96,9 @@ class Data:
 		ys = np.array(intensity[start:end])
 		slope = (ys[-1] - ys[0]) / (xs[-1] - xs[0])
 		baseline = slope * (xs - xs[0]) + ys[0]
+		#integrated_intensity = sum((ys-baseline)[1:]*np.diff(xs))
 		integrated_intensity = np.trapz(ys - baseline, xs)
+		#integrated_intensity = np.trapz(ys, xs) - (ys[0]+ys[-1])/2*(xs[-1]-xs[0])
 
 		return integrated_intensity
 
@@ -211,7 +220,8 @@ class Data:
 
 
 data_set = Data()
+#print(data_set.get_sample(3))
 print(data_set.get_standard_times())
 print(data_set.get_integration_table())
 #data_set.plot_integration_table()
-#data_set.plot_all()
+data_set.plot_all()

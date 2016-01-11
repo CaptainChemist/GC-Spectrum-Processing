@@ -2,109 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="58664c07-7aa9-4253-8118-c274c700a116" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/01.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/02.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/03.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/04.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/05.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/06.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/07.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/08.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/09.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/controls/4000_2PA.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/controls/4000_benzil.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/controls/400_2PA.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/controls/400_benzil.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/controls/40_2PA.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/controls/40_benzil.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gc/controls/internal_ref_bibenzyl.txt" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/10.txt" afterPath="$PROJECT_DIR$/gc/10.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/11.txt" afterPath="$PROJECT_DIR$/gc/11.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/12.txt" afterPath="$PROJECT_DIR$/gc/12.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/13.txt" afterPath="$PROJECT_DIR$/gc/13.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/14.txt" afterPath="$PROJECT_DIR$/gc/14.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/15.txt" afterPath="$PROJECT_DIR$/gc/15.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/16.txt" afterPath="$PROJECT_DIR$/gc/16.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/17.txt" afterPath="$PROJECT_DIR$/gc/17.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/18.txt" afterPath="$PROJECT_DIR$/gc/18.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/19.txt" afterPath="$PROJECT_DIR$/gc/19.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/20.txt" afterPath="$PROJECT_DIR$/gc/20.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/21.txt" afterPath="$PROJECT_DIR$/gc/21.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/22.txt" afterPath="$PROJECT_DIR$/gc/22.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/23.txt" afterPath="$PROJECT_DIR$/gc/23.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/24.txt" afterPath="$PROJECT_DIR$/gc/24.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/25.txt" afterPath="$PROJECT_DIR$/gc/25.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/26.txt" afterPath="$PROJECT_DIR$/gc/26.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/27.txt" afterPath="$PROJECT_DIR$/gc/27.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/28.txt" afterPath="$PROJECT_DIR$/gc/28.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/29.txt" afterPath="$PROJECT_DIR$/gc/29.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/30.txt" afterPath="$PROJECT_DIR$/gc/30.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/31.txt" afterPath="$PROJECT_DIR$/gc/31.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/32.txt" afterPath="$PROJECT_DIR$/gc/32.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/33.txt" afterPath="$PROJECT_DIR$/gc/33.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/34.txt" afterPath="$PROJECT_DIR$/gc/34.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/35.txt" afterPath="$PROJECT_DIR$/gc/35.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/36.txt" afterPath="$PROJECT_DIR$/gc/36.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/37.txt" afterPath="$PROJECT_DIR$/gc/37.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/38.txt" afterPath="$PROJECT_DIR$/gc/38.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/39.txt" afterPath="$PROJECT_DIR$/gc/39.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/40.txt" afterPath="$PROJECT_DIR$/gc/40.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/41.txt" afterPath="$PROJECT_DIR$/gc/41.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/42.txt" afterPath="$PROJECT_DIR$/gc/42.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/43.txt" afterPath="$PROJECT_DIR$/gc/43.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/44.txt" afterPath="$PROJECT_DIR$/gc/44.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/45.txt" afterPath="$PROJECT_DIR$/gc/45.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/46.txt" afterPath="$PROJECT_DIR$/gc/46.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/47.txt" afterPath="$PROJECT_DIR$/gc/47.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/48.txt" afterPath="$PROJECT_DIR$/gc/48.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/49.txt" afterPath="$PROJECT_DIR$/gc/49.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/50.txt" afterPath="$PROJECT_DIR$/gc/50.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/51.txt" afterPath="$PROJECT_DIR$/gc/51.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/52.txt" afterPath="$PROJECT_DIR$/gc/52.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/53.txt" afterPath="$PROJECT_DIR$/gc/53.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/54.txt" afterPath="$PROJECT_DIR$/gc/54.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/55.txt" afterPath="$PROJECT_DIR$/gc/55.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/56.txt" afterPath="$PROJECT_DIR$/gc/56.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/57.txt" afterPath="$PROJECT_DIR$/gc/57.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/58.txt" afterPath="$PROJECT_DIR$/gc/58.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/59.txt" afterPath="$PROJECT_DIR$/gc/59.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/60.txt" afterPath="$PROJECT_DIR$/gc/60.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/61.txt" afterPath="$PROJECT_DIR$/gc/61.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/62.txt" afterPath="$PROJECT_DIR$/gc/62.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/63.txt" afterPath="$PROJECT_DIR$/gc/63.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/64.txt" afterPath="$PROJECT_DIR$/gc/64.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/65.txt" afterPath="$PROJECT_DIR$/gc/65.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/66.txt" afterPath="$PROJECT_DIR$/gc/66.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/67.txt" afterPath="$PROJECT_DIR$/gc/67.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/68.txt" afterPath="$PROJECT_DIR$/gc/68.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/69.txt" afterPath="$PROJECT_DIR$/gc/69.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/70.txt" afterPath="$PROJECT_DIR$/gc/70.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/71.txt" afterPath="$PROJECT_DIR$/gc/71.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/72.txt" afterPath="$PROJECT_DIR$/gc/72.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/73.txt" afterPath="$PROJECT_DIR$/gc/73.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/74.txt" afterPath="$PROJECT_DIR$/gc/74.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/75.txt" afterPath="$PROJECT_DIR$/gc/75.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/76.txt" afterPath="$PROJECT_DIR$/gc/76.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/77.txt" afterPath="$PROJECT_DIR$/gc/77.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/78.txt" afterPath="$PROJECT_DIR$/gc/78.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/79.txt" afterPath="$PROJECT_DIR$/gc/79.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/80.txt" afterPath="$PROJECT_DIR$/gc/80.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/81.txt" afterPath="$PROJECT_DIR$/gc/81.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/82.txt" afterPath="$PROJECT_DIR$/gc/82.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/83.txt" afterPath="$PROJECT_DIR$/gc/83.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/84.txt" afterPath="$PROJECT_DIR$/gc/84.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/85.txt" afterPath="$PROJECT_DIR$/gc/85.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/86.txt" afterPath="$PROJECT_DIR$/gc/86.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/87.txt" afterPath="$PROJECT_DIR$/gc/87.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/88.txt" afterPath="$PROJECT_DIR$/gc/88.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/89.txt" afterPath="$PROJECT_DIR$/gc/89.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/90.txt" afterPath="$PROJECT_DIR$/gc/90.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/91.txt" afterPath="$PROJECT_DIR$/gc/91.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/92.txt" afterPath="$PROJECT_DIR$/gc/92.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/93.txt" afterPath="$PROJECT_DIR$/gc/93.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/94.txt" afterPath="$PROJECT_DIR$/gc/94.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/95.txt" afterPath="$PROJECT_DIR$/gc/95.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gc/96.txt" afterPath="$PROJECT_DIR$/gc/96.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gcAnalysis.py" afterPath="$PROJECT_DIR$/gcAnalysis.py" />
     </list>
     <ignored path="GC-Spectrum-Processing.iws" />
@@ -129,8 +26,8 @@
       <file leaf-file-name="gcAnalysis.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gcAnalysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.13527054">
-              <caret line="9" column="23" selection-start-line="9" selection-start-column="23" selection-end-line="9" selection-end-column="23" />
+            <state vertical-scroll-proportion="0.6292683">
+              <caret line="43" column="21" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -247,7 +144,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/peakdetect.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/gcAnalysis.py" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
@@ -478,8 +375,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gcAnalysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.13527054">
-          <caret line="9" column="23" selection-start-line="9" selection-start-column="23" selection-end-line="9" selection-end-column="23" />
+        <state vertical-scroll-proportion="0.6292683">
+          <caret line="43" column="21" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
