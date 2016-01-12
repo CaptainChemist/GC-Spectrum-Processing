@@ -7,10 +7,11 @@ import re
 import peakdetect
 
 number_of_samples = 4
-integration_range = 0.15
+integration_range = 0.25
 poly_calibration_fit_order = 2
 points_in_poly_fit = 5000
-concentration_to_find_time = 500
+concentration_to_find_time = 5000
+min_time = 3.5
 
 
 class Data:
@@ -35,35 +36,31 @@ class Data:
 								self.calc_area(sample['t'+str(run)], sample['i'+str(run)],
 					      self.standard_times[molecule], integration_range)
 
-		#print intensity_table
-
 		intensity_table = self.correct_control_peak(intensity_table)
 
-		#print intensity_table
+		self.concentration_table = self.calc_concentration(intensity_table)
+
+	def calc_concentration(self, intensity_table):
+		i=-1
+		for sample in intensity_table:
+			intensity_table[i] = intensity_table[i].drop('control', 1)
+			i = i + 1
+			for molecule in sample:
+				if molecule != 'control':
+					for run in sample.index:
+						intensity_index = np.argmin(abs(np.array(self.calibration_curves[molecule]) - intensity_table[i][molecule][run]))
+						intensity_table[i][molecule][run] = self.calibration_curves.iloc[intensity_index].name
+
+		return intensity_table
 
 
-			# Figure out how to address the t0 and i0s individually and push them through
-				# the calc_area function to get an integrated intensity for both molecules
-				# Then run each integrated intensity through a function to find the minimum
-				# with the calibration file and then get the X and then save it as a concentration!
-
+	# Corrects the integrated intensities by the control peak intensity
 	def correct_control_peak(self, intensity_table):
 		control = intensity_table[0]['control'][0]
-		print len(intensity_table[0])
-
 		for sample in range(len(intensity_table)):
 			intensity_table[sample] = intensity_table[sample].multiply(control/intensity_table[sample]['control'], axis = 0)[:-1]
 
-		print intensity_table[0]
 		return intensity_table
-
-	#figure out why it isnt returning the corrected table
-
-
-	# def get_concentration(self, concentration, molecule):
-	# 	print self.calibration_curves[molecule]
-	# 	return concentration
-	#multipply by control offset before fitting to calibration curve
 
 	def create_calibration(self):
 		self.get_times()
@@ -131,7 +128,7 @@ class Data:
 				peaks = peakdetect.peakdetect(run.intensity, run.time)[0]
 
 				for peak in peaks:
-					if peak[0] > 3.5:
+					if peak[0] > min_time:
 						self.standard_times[run.name] = float(peak[0])
 						break
 
@@ -204,41 +201,60 @@ class Data:
 	def get_iteration_number(self):
 		return self.iterationNumber
 
+	# Get a dataframe of the fitted poly calibration curves
 	def get_calibration_curves(self):
 		return self.calibration_curves
 
+	# Get a dataframe of integrated intensities and calibration samples
 	def get_integration_table(self):
 		return self.standard_integration_table
 
+	# Get a dictionary of standard elution times
 	def get_standard_times(self):
 		return self.standard_times
 
+	# Get a list of dataframes of the concentrations over each run
+	def get_concentration_table(self):
+		return self.concentration_table
+
+	# Plot the calibration line fits and integrated intensities
 	def plot_integration_table(self):
 		for molecule in self.standard_integration_table:
-			print self.standard_integration_table[molecule]
 			plt.scatter(self.standard_integration_table[molecule],self.standard_integration_table.index)
 			plt.plot(self.calibration_curves[molecule], self.calibration_curves.index)
 		plt.show()
 
+	def plot_calibrated_samples(self):
+		f, axs = plt.subplots(4, sharex=True, sharey=True)
+
+		i = -1
+		for sample in self.concentration_table:
+			i = i + 1
+
+			for molecule in sample:
+				axs[i].plot(sample[molecule])
+
+		plt.show()
+
+	# Plot the GC Data
 	def plot_all(self):
 		plt.close('all')
-		f, (ax0, ax1, ax2, ax3) = plt.subplots(4, sharex=True, sharey=True)
+		f, axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
 
-		for i in range(self.get_iteration_number()):
-			ax0.plot(self.sample[0]['t' + str(i)], self.sample[0]['i' + str(i)])
-		for i in range(data_set.get_iteration_number()):
-			ax1.plot(self.sample[1]['t' + str(i)], self.sample[1]['i' + str(i)])
-		for i in range(data_set.get_iteration_number()):
-			ax2.plot(self.sample[2]['t' + str(i)], self.sample[2]['i' + str(i)])
-		for i in range(data_set.get_iteration_number()):
-			ax3.plot(self.sample[3]['t' + str(i)], self.sample[3]['i' + str(i)])
+		for sample in range(number_of_samples):
+			for i in range(self.get_iteration_number()):
+				axs[sample].plot(self.sample[sample]['t' + str(i)], self.sample[sample]['i' + str(i)])
 
 		plt.show()
 
 
 data_set = Data()
-#print(data_set.get_sample(3))
-print(data_set.get_standard_times())
-print(data_set.get_integration_table())
+
+#print(data_set.get_standard_times())
+#print(data_set.get_integration_table())
+#print(data_set.get_concentration_table())
+
 #data_set.plot_integration_table()
+data_set.plot_calibrated_samples()
 #data_set.plot_all()
+#print data_set.get_calibration_curves()
