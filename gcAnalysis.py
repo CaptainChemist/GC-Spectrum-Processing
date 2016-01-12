@@ -32,21 +32,38 @@ class Data:
 				i = i + 1
 				for run in range(self.iterationNumber):
 					intensity_table[i][molecule][run] = \
-						self.get_concentration(
 								self.calc_area(sample['t'+str(run)], sample['i'+str(run)],
-					      self.standard_times[molecule], integration_range),molecule)
+					      self.standard_times[molecule], integration_range)
 
+		#print intensity_table
 
+		intensity_table = self.correct_control_peak(intensity_table)
 
-		print intensity_table
+		#print intensity_table
+
 
 			# Figure out how to address the t0 and i0s individually and push them through
 				# the calc_area function to get an integrated intensity for both molecules
 				# Then run each integrated intensity through a function to find the minimum
 				# with the calibration file and then get the X and then save it as a concentration!
-	def get_concentration(self, concentration, molecule):
 
-		return concentration
+	def correct_control_peak(self, intensity_table):
+		control = intensity_table[0]['control'][0]
+		print len(intensity_table[0])
+
+		for sample in range(len(intensity_table)):
+			intensity_table[sample] = intensity_table[sample].multiply(control/intensity_table[sample]['control'], axis = 0)[:-1]
+
+		print intensity_table[0]
+		return intensity_table
+
+	#figure out why it isnt returning the corrected table
+
+
+	# def get_concentration(self, concentration, molecule):
+	# 	print self.calibration_curves[molecule]
+	# 	return concentration
+	#multipply by control offset before fitting to calibration curve
 
 	def create_calibration(self):
 		self.get_times()
@@ -224,4 +241,4 @@ data_set = Data()
 print(data_set.get_standard_times())
 print(data_set.get_integration_table())
 #data_set.plot_integration_table()
-data_set.plot_all()
+#data_set.plot_all()
