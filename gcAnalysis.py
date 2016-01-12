@@ -6,12 +6,14 @@ import glob
 import re
 import peakdetect
 
+controls_location = "./gc/controls/*.txt"
+samples_location = "../samples/2015-12-21/*.txt"
 number_of_samples = 4
 integration_range = 0.25
 poly_calibration_fit_order = 2
 points_in_poly_fit = 5000
 concentration_to_find_time = 5000
-min_time = 3.5
+min_elution_time = 3.5
 
 
 class Data:
@@ -103,16 +105,14 @@ class Data:
 					                 self.standard_times[molecule.name], integration_range)
 
 	# Calculates the area of a section of a X,Y 1D plot based on peak center and width
-	def calc_area(self, time, intensity, peak_center, integration_range):
-		start = np.argmin(abs(np.array(time) - (peak_center - integration_range)))
-		end = np.argmin(abs(np.array(time) - (peak_center + integration_range)))
+	def calc_area(self, time, intensity, peak_center, int_range):
+		start = np.argmin(abs(np.array(time) - (peak_center - int_range)))
+		end = np.argmin(abs(np.array(time) - (peak_center + int_range)))
 		xs = np.array(time[start:end])
 		ys = np.array(intensity[start:end])
 		slope = (ys[-1] - ys[0]) / (xs[-1] - xs[0])
 		baseline = slope * (xs - xs[0]) + ys[0]
-		#integrated_intensity = sum((ys-baseline)[1:]*np.diff(xs))
 		integrated_intensity = np.trapz(ys - baseline, xs)
-		#integrated_intensity = np.trapz(ys, xs) - (ys[0]+ys[-1])/2*(xs[-1]-xs[0])
 
 		return integrated_intensity
 
@@ -128,7 +128,7 @@ class Data:
 				peaks = peakdetect.peakdetect(run.intensity, run.time)[0]
 
 				for peak in peaks:
-					if peak[0] > min_time:
+					if peak[0] > min_elution_time:
 						self.standard_times[run.name] = float(peak[0])
 						break
 
@@ -138,7 +138,7 @@ class Data:
 		current_list = 0
 		cols = ['time', 'intensity']
 
-		for full_file_name in sorted(glob.glob("./gc/controls/*.txt")):
+		for full_file_name in sorted(glob.glob(controls_location)):
 			self.control[current_list] = self.get_csv(full_file_name, cols)
 
 			if re.findall('internal_ref*', full_file_name):
@@ -166,7 +166,8 @@ class Data:
 
 			# Create a data frame for each sample and then concat onto it for future samplings of that sample
 			self.sample[(current_number - 1) % number_of_samples] = \
-				pd.concat([self.sample[(current_number - 1) % number_of_samples], self.get_csv(full_file_name, cols)], axis=1, join='inner')
+				pd.concat([self.sample[(current_number - 1) % number_of_samples],
+				           self.get_csv(full_file_name, cols)], axis=1, join='inner')
 
 		self.iterationNumber = int(current_number / number_of_samples)
 
@@ -224,8 +225,9 @@ class Data:
 			plt.plot(self.calibration_curves[molecule], self.calibration_curves.index)
 		plt.show()
 
+	# Plot the intensity data for each sample over time
 	def plot_calibrated_samples(self):
-		f, axs = plt.subplots(4, sharex=True, sharey=True)
+		f, axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
 
 		i = -1
 		for sample in self.concentration_table:
@@ -236,9 +238,8 @@ class Data:
 
 		plt.show()
 
-	# Plot the GC Data
+	# Plot the GC Elution Data
 	def plot_all(self):
-		plt.close('all')
 		f, axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
 
 		for sample in range(number_of_samples):
@@ -252,9 +253,9 @@ data_set = Data()
 
 #print(data_set.get_standard_times())
 #print(data_set.get_integration_table())
-#print(data_set.get_concentration_table())
+print(data_set.get_concentration_table())
 
-#data_set.plot_integration_table()
-data_set.plot_calibrated_samples()
+data_set.plot_integration_table()
+#data_set.plot_calibrated_samples()
 #data_set.plot_all()
 #print data_set.get_calibration_curves()
