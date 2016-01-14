@@ -29,6 +29,7 @@ not stored in the final table.
 4. Create a calibration curve for each target molecule by fitting the concentration table data to a second order
 polynomial. Store it as **self.calibration_curves**.
 5. If desired, we may plot the calibration curve by calling the function **plot_integration_table()**.
+
 # Aggregating and Processing the Sample Data
 1. Loop through all of the GC spectrum in the folder, skip the header and import the data, which is a time vs. intensity
  array as a pandas data frame (N x 2). Sort the data frames based on the number of the sample. Since we have 4 samples,
@@ -48,7 +49,7 @@ concentration for that sample, run and target molecule as a list of dataframes *
 Public API Function Calls
 ===========
 
-First call the class data_set = Data()
+First call the class **data_set = Data()**
 
 **data_set.save_sample(sample_number)** - saves one sample with all iterations to a csv file
 

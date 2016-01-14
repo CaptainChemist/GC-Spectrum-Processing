@@ -9,6 +9,7 @@ import peakdetect
 sample_names = ["4 mm benzil", "4 mm benzil, 40 nm CdS", "4 mm benzil, 400 nm CdS", "4 mm benzil, 4000 nm CdS"]
 controls_location = "./gc/controls/*.txt"
 samples_location = "./samples/2015-12-21/*.txt"
+header_length = 22
 number_of_samples = 4
 integration_range = 0.25
 poly_calibration_fit_order = 1
@@ -26,154 +27,155 @@ class Data:
         self.convert_data_to_concentration()
 
     def convert_data_to_concentration(self):
-        molecules = self.standard_times.keys()
-        runs = np.arange(0, self.iterationNumber-1, 1)
-        intensity_table = [pd.DataFrame(index=runs, columns=molecules).fillna(0) for x in range(number_of_samples)]
+        _molecules = self.standard_times.keys()
+        _runs = np.arange(0, self.iteration_number - 1, 1)
+        _intensity_table = [pd.DataFrame(index=_runs, columns=_molecules).fillna(0) for x in range(number_of_samples)]
 
-        for molecule in molecules:
-            i = -1
-            for sample in self.sample:
-                i = i + 1
-                for run in range(self.iterationNumber):
-                    intensity_table[i][molecule][run] = \
-                                self.calc_area(sample['t'+str(run)], sample['i'+str(run)],
-                          self.standard_times[molecule], integration_range)
+        for _molecule in _molecules:
+            _i = -1
+            for _sample in self.sample:
+                _i = _i + 1
+                for _run in range(self.iteration_number):
+                    _intensity_table[_i][_molecule][_run] = \
+                        self.calc_area(_sample['t' + str(_run)], _sample['i' + str(_run)],
+                                       self.standard_times[_molecule], integration_range)
 
-        intensity_table = self.correct_control_peak(intensity_table)
+        _intensity_table = self.correct_control_peak(_intensity_table)
 
-        self.concentration_table = self.calc_concentration(intensity_table)
+        self.concentration_table = self.calc_concentration(_intensity_table)
 
     def calc_concentration(self, intensity_table):
-        i=-1
-        for sample in intensity_table:
-            intensity_table[i] = intensity_table[i].drop('control', 1)
-            i = i + 1
-            for molecule in sample:
-                if molecule != 'control':
-                    for run in sample.index:
-                        intensity_index = np.argmin(abs(np.array(self.calibration_curves[molecule]) - intensity_table[i][molecule][run]))
-                        intensity_table[i][molecule][run] = self.calibration_curves.iloc[intensity_index].name
+        _i = -1
+        for _sample in intensity_table:
+            intensity_table[_i] = intensity_table[_i].drop('control', 1)
+            _i = _i + 1
+            for _molecule in _sample:
+                if _molecule != 'control':
+                    for _run in _sample.index:
+                        intensity_index = np.argmin(
+                                abs(np.array(self.calibration_curves[_molecule]) - intensity_table[_i][_molecule][_run]))
+                        intensity_table[_i][_molecule][_run] = self.calibration_curves.iloc[intensity_index].name
         return intensity_table
 
     # Corrects the integrated intensities by the control peak intensity
     def correct_control_peak(self, intensity_table):
-        control = intensity_table[0]['control'][0]
-        for sample in range(len(intensity_table)):
-            intensity_table[sample] = intensity_table[sample].multiply(control/intensity_table[sample]['control'], axis = 0)[:-1]
+        _control = intensity_table[0]['control'][0]
+        for _sample in range(len(intensity_table)):
+            intensity_table[_sample] = intensity_table[_sample].multiply(
+                    _control / intensity_table[_sample]['control'], axis=0)[:-1]
         return intensity_table
 
     def create_calibration(self):
         self.get_times()
         self.create_integration_table()
         self.calibration_curves = pd.DataFrame()
-        for molecule in self.standard_integration_table:
-            one_run = self.create_calibration_curve(
-                        self.standard_integration_table[molecule].keys(),
-                  self.standard_integration_table[molecule].values,
-                  poly_calibration_fit_order)
-            one_run.columns = [molecule]
-            self.calibration_curves = pd.concat([self.calibration_curves, one_run], axis=1)
+        for _molecule in self.standard_integration_table:
+            _one_run = self.create_calibration_curve(
+                    self.standard_integration_table[_molecule].keys(),
+                    self.standard_integration_table[_molecule].values,
+                    poly_calibration_fit_order)
+            _one_run.columns = [_molecule]
+            self.calibration_curves = pd.concat([self.calibration_curves, _one_run], axis=1)
 
     # This creates a single calibration curve given a time and intensity array and a fitting order
     def create_calibration_curve(self, time, intensity, order):
-        x_new = np.arange(0, points_in_poly_fit, .1)
-        coefs = poly.polyfit(time, intensity, order)
-        ffit = poly.polyval(x_new, coefs)
-        return pd.DataFrame(data=ffit, index=x_new)
+        _x_new = np.arange(0, points_in_poly_fit, .1)
+        _coefs = poly.polyfit(time, intensity, order)
+        _ffit = poly.polyval(_x_new, _coefs)
+        return pd.DataFrame(data=_ffit, index=_x_new)
 
     # This creates a table of integrated intensities for each molecule and concentration
     def create_integration_table(self):
         # Find the concentrations and molecules present and create an empty calibration dataframe
-        concentrations = []
-        molecules = []
-        for run in self.control:
-            if run.type not in concentrations and run.type != 'control':
-                concentrations.append(run.type)
-            if run.name not in molecules and run.type != 'control':
-                molecules.append(run.name)
-        self.standard_integration_table = pd.DataFrame(index=concentrations, columns=molecules).fillna(0)
+        _concentrations = []
+        _molecules = []
+        for _run in self.control:
+            if _run.type not in _concentrations and _run.type != 'control':
+                _concentrations.append(_run.type)
+            if _run.name not in _molecules and _run.type != 'control':
+                _molecules.append(_run.name)
+        self.standard_integration_table = pd.DataFrame(index=_concentrations, columns=_molecules).fillna(0)
 
         # Loop over the concentration calibration data and extract integrated intensities
-        for molecule in self.control:
-            if molecule.type != 'control':
-                self.standard_integration_table[molecule.name][molecule.type] \
-                    = self.calc_area(molecule.time, molecule.intensity,
-                                     self.standard_times[molecule.name], integration_range)
+        for _molecule in self.control:
+            if _molecule.type != 'control':
+                self.standard_integration_table[_molecule.name][_molecule.type] \
+                    = self.calc_area(_molecule.time, _molecule.intensity,
+                                     self.standard_times[_molecule.name], integration_range)
 
         # Subtract zero concentration
-        subtracted_calibration = pd.DataFrame(self.standard_integration_table.values-self.standard_integration_table.iloc[0, :].values,
-                                              columns=self.standard_integration_table.columns, index=self.standard_integration_table.index)
-        self.standard_integration_table = subtracted_calibration[1:]
-
+        _subtracted_calibration = pd.DataFrame(
+                self.standard_integration_table.values - self.standard_integration_table.iloc[0, :].values,
+                columns=self.standard_integration_table.columns, index=self.standard_integration_table.index)
+        self.standard_integration_table = _subtracted_calibration[1:]
 
     # Calculates the area of a section of a X,Y 1D plot based on peak center and width
     def calc_area(self, time, intensity, peak_center, int_range):
-        start = np.argmin(abs(np.array(time) - (peak_center - int_range)))
-        end = np.argmin(abs(np.array(time) - (peak_center + int_range)))
-        xs = np.array(time[start:end])
-        ys = np.array(intensity[start:end])
-        slope = (ys[-1] - ys[0]) / (xs[-1] - xs[0])
-        baseline = slope * (xs - xs[0]) + ys[0]
-        integrated_intensity = np.trapz(ys - baseline, xs)
-        return integrated_intensity
+        _start = np.argmin(abs(np.array(time) - (peak_center - int_range)))
+        _end = np.argmin(abs(np.array(time) - (peak_center + int_range)))
+        _xs = np.array(time[_start:_end])
+        _ys = np.array(intensity[_start:_end])
+        _slope = (_ys[-1] - _ys[0]) / (_xs[-1] - _xs[0])
+        _baseline = _slope * (_xs - _xs[0]) + _ys[0]
+        _integrated_intensity = np.trapz(_ys - _baseline, _xs)
+        return _integrated_intensity
 
     # Gets the elution times for each standard and puts it in a table
     def get_times(self):
         self.standard_times = {}
 
-        for run in self.control:
-            if run.type == 'control':
-                peaks = peakdetect.peakdetect(run.intensity, run.time)
+        for _run in self.control:
+            if _run.type == 'control':
+                peaks = peakdetect.peakdetect(_run.intensity, _run.time)
                 self.standard_times['control'] = float([peaks[0][1][0]][0])
-            elif run.type == concentration_to_find_time:
-                peaks = peakdetect.peakdetect(run.intensity, run.time)[0]
+            elif _run.type == concentration_to_find_time:
+                peaks = peakdetect.peakdetect(_run.intensity, _run.time)[0]
 
                 for peak in peaks:
                     if peak[0] > min_elution_time:
-                        self.standard_times[run.name] = float(peak[0])
+                        self.standard_times[_run.name] = float(peak[0])
                         break
 
     # Construct the control list of data frames
     def aggregate_calibration(self):
         self.control = [[] for x in range(len(glob.glob(controls_location)))]
-        current_list = 0
-        cols = ['time', 'intensity']
+        _current_list = 0
+        _cols = ['time', 'intensity']
 
-        for full_file_name in sorted(glob.glob(controls_location)):
-            self.control[current_list] = self.get_csv(full_file_name, cols)
-            if re.findall('internal_ref*', full_file_name):
-                self.control[current_list].name = str(re.findall('ref\_([a-zA-Z0-9]*)', full_file_name)[0])
-                self.control[current_list].type = 'control'
+        for _full_file_name in sorted(glob.glob(controls_location)):
+            self.control[_current_list] = self.get_csv(_full_file_name, _cols)
+            if re.findall('internal_ref*', _full_file_name):
+                self.control[_current_list].name = str(re.findall('ref\_([a-zA-Z0-9]*)', _full_file_name)[0])
+                self.control[_current_list].type = 'control'
             else:
-                self.control[current_list].name = str(re.findall('\_([a-zA-Z0-9]*)', full_file_name)[0])
-                self.control[current_list].type = int(re.findall('([0-9]*)\_', full_file_name)[-1])
+                self.control[_current_list].name = str(re.findall('\_([a-zA-Z0-9]*)', _full_file_name)[0])
+                self.control[_current_list].type = int(re.findall('([0-9]*)\_', _full_file_name)[-1])
 
-            current_list = current_list + 1
+            _current_list = _current_list + 1
 
     # Construct the data array
     def aggregate_data(self):
         # Setting up a 2D empty list
         self.sample = [pd.DataFrame() for x in range(number_of_samples)]
 
-        # Goes through each of the files in ascending order and converts a list of times and intensities into a dataframe
-        for full_file_name in sorted(glob.glob(samples_location)):
+        # Goes through the files in ascending order and converts a list of times and intensities into a dataframe
+        for _full_file_name in sorted(glob.glob(samples_location)):
             # First get the name of the file and convert that to a number
-            current_number = int(re.findall(r'\d+', full_file_name)[-1])
+            _current_number = int(re.findall(r'\d+', _full_file_name)[-1])
 
             # Create column headers based on the number it pulls from the file name
-            cols = ['t' + str(int((current_number - 1) / number_of_samples)),
-                    'i' + str(int((current_number - 1) / number_of_samples))]
+            _cols = ['t' + str(int((_current_number - 1) / number_of_samples)),
+                    'i' + str(int((_current_number - 1) / number_of_samples))]
 
             # Create a data frame for each sample and then concat onto it for future samplings of that sample
-            self.sample[(current_number - 1) % number_of_samples] = \
-                pd.concat([self.sample[(current_number - 1) % number_of_samples],
-                           self.get_csv(full_file_name, cols)], axis=1, join='inner')
+            self.sample[(_current_number - 1) % number_of_samples] = \
+                pd.concat([self.sample[(_current_number - 1) % number_of_samples],
+                           self.get_csv(_full_file_name, _cols)], axis=1, join='inner')
 
-        self.iterationNumber = int(current_number / number_of_samples)
+        self.iteration_number = int(_current_number / number_of_samples)
 
     # Get data from *.csv and convert it to a dataframe
     def get_csv(self, full_file_name, cols='empty'):
-        header_length = 22
         if cols == 'empty':
             return pd.read_csv(full_file_name, header=header_length, delimiter=r"\s+")
         else:
@@ -201,7 +203,7 @@ class Data:
 
     # Get the number of sampling
     def get_iteration_number(self):
-        return self.iterationNumber
+        return self.iteration_number
 
     # Get a dataframe of the fitted poly calibration curves
     def get_calibration_curves(self):
@@ -221,48 +223,48 @@ class Data:
 
     # Plot the calibration line fits and integrated intensities
     def plot_integration_table(self, log=False):
-        f, ax = plt.subplots(1)
-        for molecule in self.standard_integration_table:
-            ax.scatter(self.standard_integration_table.index, self.standard_integration_table[molecule])
-            ax.plot(self.calibration_curves.index, self.calibration_curves[molecule])
+        _f, _ax = plt.subplots(1)
+        for _molecule in self.standard_integration_table:
+            _ax.scatter(self.standard_integration_table.index, self.standard_integration_table[_molecule])
+            _ax.plot(self.calibration_curves.index, self.calibration_curves[_molecule])
 
         if log == True:
-            ax.set_yscale('log')
-            ax.set_xscale('log')
+            _ax.set_yscale('log')
+            _ax.set_xscale('log')
 
         plt.show()
 
     # Plot the intensity data for each sample over time
     def plot_calibrated_samples(self):
-        f, axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
-        i = -1
-        for sample in self.concentration_table:
-            i = i + 1
-            for molecule in sample:
-                axs[i].plot(sample.index, sample[molecule]/1000)
-                axs[i].set_ylabel('Concentration (mM)', fontsize = 10)
-                axs[i].set_xlabel('Iteration', fontsize = 10)
-                axs[i].set_title(sample_names[i], fontsize = 10)
+        _f, _axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
+        _i = -1
+        for _sample in self.concentration_table:
+            _i = _i + 1
+            for _molecule in _sample:
+                _axs[_i].plot(_sample.index, _sample[_molecule] / 1000)
+                _axs[_i].set_ylabel('Concentration (mM)', fontsize=10)
+                _axs[_i].set_xlabel('Iteration', fontsize=10)
+                _axs[_i].set_title(sample_names[_i], fontsize=10)
 
         plt.show()
 
     # Plot the GC Elution Data
     def plot_all(self):
-        f, axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
+        _f, _axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
 
-        for sample in range(number_of_samples):
-            for i in range(self.get_iteration_number()):
-                axs[sample].plot(self.sample[sample]['t' + str(i)], self.sample[sample]['i' + str(i)])
+        for _sample in range(number_of_samples):
+            for _i in range(self.get_iteration_number()):
+                _axs[_sample].plot(self.sample[_sample]['t' + str(_i)], self.sample[_sample]['i' + str(_i)])
 
         plt.show()
 
 
 data_set = Data()
 
-#print(data_set.get_standard_times())
+print(data_set.get_standard_times())
 print(data_set.get_integration_table())
-#print(data_set.get_concentration_table())
-#data_set.plot_integration_table(True)
+print(data_set.get_concentration_table())
+data_set.plot_integration_table(True)
 data_set.plot_calibrated_samples()
-#data_set.plot_all()
-#print data_set.get_calibration_curves()
+data_set.plot_all()
+print data_set.get_calibration_curves()
