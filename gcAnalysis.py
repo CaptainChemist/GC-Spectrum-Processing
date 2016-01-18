@@ -28,19 +28,6 @@ class Data:
         self.convert_data_to_concentration()
 
     def convert_data_to_concentration(self):
-        self.standard_starts = {
-            'control': 1.7325,
-            '2PA' : 3.4845,
-            'benzil' : 4.17112,
-            'rearranged benzil' : 4.53879
-        }
-
-        self.standard_stops = {
-            'control': 1.9514,
-            '2PA' : 3.79459,
-            'benzil' : 4.53879,
-            'rearranged benzil' : 5.3583
-        }
         #_molecules = self.standard_times.keys()
         _molecules = self.standard_starts.keys()
         _runs = np.arange(0, self.iteration_number - 1, 1)
@@ -54,10 +41,11 @@ class Data:
                     _intensity_table[_i][_molecule][_run] = \
                         self.endpoints_calc_area(_sample['t' + str(_run)], _sample['i' + str(_run)],
                                        self.standard_starts[_molecule], self.standard_stops[_molecule])
-
+        print _intensity_table
         _intensity_table = self.correct_control_peak(_intensity_table)
 
         self.concentration_table = self.calc_concentration(_intensity_table)
+        print self.concentration_table
 
     def calc_concentration(self, intensity_table):
         _i = -1
@@ -65,12 +53,7 @@ class Data:
             intensity_table[_i] = intensity_table[_i].drop('control', 1)
             _i = _i + 1
             for _molecule in _sample:
-                if _molecule == 'rearranged benzil':
-                    for _run in _sample.index:
-                        intensity_index = np.argmin(
-                                abs(np.array(self.calibration_curves['benzil']) - intensity_table[_i][_molecule][_run]))
-                        intensity_table[_i][_molecule][_run] = self.calibration_curves.iloc[intensity_index]['benzil']
-                elif _molecule != 'control':
+                if _molecule != 'control':
                     for _run in _sample.index:
                         intensity_index = np.argmin(
                                 abs(np.array(self.calibration_curves[_molecule]) - intensity_table[_i][_molecule][_run]))
@@ -106,6 +89,19 @@ class Data:
 
     # This creates a table of integrated intensities for each molecule and concentration
     def create_integration_table(self):
+        self.standard_starts = {
+            'control': 1.7325,
+            '2PA' : 3.4845,
+            'benzil' : 4.17112,
+            'rearranged benzil' : 4.53879
+        }
+
+        self.standard_stops = {
+            'control': 1.9514,
+            '2PA' : 3.79459,
+            'benzil' : 4.53879,
+            'rearranged benzil' : 5.3583
+        }
         # Find the concentrations and molecules present and create an empty calibration dataframe
         _concentrations = []
         _molecules = []
@@ -120,14 +116,17 @@ class Data:
         for _molecule in self.control:
             if _molecule.type != 'control':
                 self.standard_integration_table[_molecule.name][_molecule.type] \
-                    = self.calc_area(_molecule.time, _molecule.intensity,
-                                     self.standard_times[_molecule.name], integration_range)
+                    = self.endpoints_calc_area(_molecule.time, _molecule.intensity,
+                                     self.standard_starts[_molecule.name], self.standard_stops[_molecule.name])
 
         # Subtract zero concentration
         _subtracted_calibration = pd.DataFrame(
                 self.standard_integration_table.values - self.standard_integration_table.iloc[0, :].values,
                 columns=self.standard_integration_table.columns, index=self.standard_integration_table.index)
         self.standard_integration_table = _subtracted_calibration[1:]
+
+        self.standard_integration_table['rearranged benzil'] = self.standard_integration_table['benzil']
+        print self.standard_integration_table
 
     # Calculates the area of a section of a X,Y 1D plot based on peak center and width
     def calc_area(self, time, intensity, peak_center, int_range):
@@ -292,9 +291,9 @@ class Data:
 data_set = Data()
 
 #print(data_set.get_standard_times())
-#print(data_set.get_integration_table())
-print(data_set.get_concentration_table())
-#data_set.plot_integration_table(True)
-#data_set.plot_calibrated_samples()
+print(data_set.get_integration_table())
+#print(data_set.get_concentration_table())
+#data_set.plot_integration_table()
+data_set.plot_calibrated_samples()
 #data_set.plot_all()
 #print data_set.get_calibration_curves()
