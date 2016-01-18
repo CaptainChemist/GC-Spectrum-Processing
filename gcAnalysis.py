@@ -5,13 +5,15 @@ import matplotlib.pyplot as plt
 import glob
 import re
 import peakdetect
+from scipy.optimize import curve_fit
+import scipy.special
 
 sample_names = ["4 mm benzil", "4 mm benzil, 40 nm CdS", "4 mm benzil, 400 nm CdS", "4 mm benzil, 4000 nm CdS"]
 controls_location = "./gc/controls/*.txt"
 samples_location = "./samples/2015-12-21/*.txt"
 header_length = 22
 number_of_samples = 4
-integration_range = 0.25
+integration_range = .25
 poly_calibration_fit_order = 1
 points_in_poly_fit = 5000
 concentration_to_find_time = 5000
@@ -26,6 +28,14 @@ class Data:
         self.aggregate_data()
         self.convert_data_to_concentration()
 
+    def gauss(self, x, *p):
+        A1, mu1, sigma1 = p
+        return A1*np.exp(-(x-mu1)**2/(2.*sigma1**2))
+
+    def two_gauss(self, x, *p):
+        A1, mu1, sigma1, A2, mu2, sigma2 = p
+        return A1*np.exp(-(x-mu1)**2/(2.*sigma1**2))+A2*np.exp(-(x-mu2)**2/(2.*sigma2**2))
+
     def convert_data_to_concentration(self):
         _molecules = self.standard_times.keys()
         _runs = np.arange(0, self.iteration_number - 1, 1)
@@ -36,9 +46,13 @@ class Data:
             for _sample in self.sample:
                 _i = _i + 1
                 for _run in range(self.iteration_number):
+                    print _i
+                    print _run
+
                     _intensity_table[_i][_molecule][_run] = \
                         self.calc_area(_sample['t' + str(_run)], _sample['i' + str(_run)],
-                                       self.standard_times[_molecule], integration_range)
+                                       self.standard_times[_molecule], integration_range,
+                                       _molecule)
 
         _intensity_table = self.correct_control_peak(_intensity_table)
 
@@ -101,7 +115,8 @@ class Data:
             if _molecule.type != 'control':
                 self.standard_integration_table[_molecule.name][_molecule.type] \
                     = self.calc_area(_molecule.time, _molecule.intensity,
-                                     self.standard_times[_molecule.name], integration_range)
+                                     self.standard_times[_molecule.name], integration_range,
+                                     _molecule.name)
 
         # Subtract zero concentration
         _subtracted_calibration = pd.DataFrame(
@@ -110,11 +125,27 @@ class Data:
         self.standard_integration_table = _subtracted_calibration[1:]
 
     # Calculates the area of a section of a X,Y 1D plot based on peak center and width
-    def calc_area(self, time, intensity, peak_center, int_range):
+    def calc_area(self, time, intensity, peak_center, int_range, two_gauss):
         _start = np.argmin(abs(np.array(time) - (peak_center - int_range)))
         _end = np.argmin(abs(np.array(time) - (peak_center + int_range)))
         _xs = np.array(time[_start:_end])
         _ys = np.array(intensity[_start:_end])
+        print peak_center
+        print two_gauss
+        if two_gauss == 'b2enzil':
+            try:
+                popt, pcov = curve_fit(self.two_gauss, time, intensity, [1000,peak_center,0.1, 1000, peak_center+0.2, 0.1])
+
+            except:
+                popt, pcov = curve_fit(self.gauss, time, intensity, [1000,peak_center,0.1])
+
+        else:
+            popt, pcov = curve_fit(self.gauss, time, intensity, [1000,peak_center,0.1])
+            #print popt
+            #print scipy.integrate.quad(self.gauss, popt, popt[1]-int_range, popt[1]+int_range)
+
+        print popt
+
         _slope = (_ys[-1] - _ys[0]) / (_xs[-1] - _xs[0])
         _baseline = _slope * (_xs - _xs[0]) + _ys[0]
         _integrated_intensity = np.trapz(_ys - _baseline, _xs)
@@ -260,11 +291,12 @@ class Data:
 
 
 data_set = Data()
+data_set.save_all()
 
 print(data_set.get_standard_times())
-print(data_set.get_integration_table())
-print(data_set.get_concentration_table())
-data_set.plot_integration_table(True)
-data_set.plot_calibrated_samples()
-data_set.plot_all()
-print data_set.get_calibration_curves()
+#print(data_set.get_integration_table())
+#print(data_set.get_concentration_table())
+#data_set.plot_integration_table(True)
+#data_set.plot_calibrated_samples()
+#data_set.plot_all()
+#print data_set.get_calibration_curves()
