@@ -19,6 +19,7 @@ min_elution_time = 3.5
 
 
 class Data:
+
     # This set of tasks gets called when initializing the class
     def __init__(self):
         self.aggregate_calibration()
@@ -27,7 +28,21 @@ class Data:
         self.convert_data_to_concentration()
 
     def convert_data_to_concentration(self):
-        _molecules = self.standard_times.keys()
+        self.standard_starts = {
+            'control': 1.7325,
+            '2PA' : 3.4845,
+            'benzil' : 4.17112,
+            'rearranged benzil' : 4.53879
+        }
+
+        self.standard_stops = {
+            'control': 1.9514,
+            '2PA' : 3.79459,
+            'benzil' : 4.53879,
+            'rearranged benzil' : 5.3583
+        }
+        #_molecules = self.standard_times.keys()
+        _molecules = self.standard_starts.keys()
         _runs = np.arange(0, self.iteration_number - 1, 1)
         _intensity_table = [pd.DataFrame(index=_runs, columns=_molecules).fillna(0) for x in range(number_of_samples)]
 
@@ -37,8 +52,8 @@ class Data:
                 _i = _i + 1
                 for _run in range(self.iteration_number):
                     _intensity_table[_i][_molecule][_run] = \
-                        self.calc_area(_sample['t' + str(_run)], _sample['i' + str(_run)],
-                                       self.standard_times[_molecule], integration_range)
+                        self.endpoints_calc_area(_sample['t' + str(_run)], _sample['i' + str(_run)],
+                                       self.standard_starts[_molecule], self.standard_stops[_molecule])
 
         _intensity_table = self.correct_control_peak(_intensity_table)
 
@@ -50,7 +65,12 @@ class Data:
             intensity_table[_i] = intensity_table[_i].drop('control', 1)
             _i = _i + 1
             for _molecule in _sample:
-                if _molecule != 'control':
+                if _molecule == 'rearranged benzil':
+                    for _run in _sample.index:
+                        intensity_index = np.argmin(
+                                abs(np.array(self.calibration_curves['benzil']) - intensity_table[_i][_molecule][_run]))
+                        intensity_table[_i][_molecule][_run] = self.calibration_curves.iloc[intensity_index]['benzil']
+                elif _molecule != 'control':
                     for _run in _sample.index:
                         intensity_index = np.argmin(
                                 abs(np.array(self.calibration_curves[_molecule]) - intensity_table[_i][_molecule][_run]))
@@ -113,6 +133,16 @@ class Data:
     def calc_area(self, time, intensity, peak_center, int_range):
         _start = np.argmin(abs(np.array(time) - (peak_center - int_range)))
         _end = np.argmin(abs(np.array(time) - (peak_center + int_range)))
+        _xs = np.array(time[_start:_end])
+        _ys = np.array(intensity[_start:_end])
+        _slope = (_ys[-1] - _ys[0]) / (_xs[-1] - _xs[0])
+        _baseline = _slope * (_xs - _xs[0]) + _ys[0]
+        _integrated_intensity = np.trapz(_ys - _baseline, _xs)
+        return _integrated_intensity
+
+    def endpoints_calc_area(self, time, intensity, start_time, end_time):
+        _start = np.argmin(abs(np.array(time) - start_time))
+        _end = np.argmin(abs(np.array(time) - end_time))
         _xs = np.array(time[_start:_end])
         _ys = np.array(intensity[_start:_end])
         _slope = (_ys[-1] - _ys[0]) / (_xs[-1] - _xs[0])
@@ -228,7 +258,7 @@ class Data:
             _ax.scatter(self.standard_integration_table.index, self.standard_integration_table[_molecule])
             _ax.plot(self.calibration_curves.index, self.calibration_curves[_molecule])
 
-        if log == True:
+        if log:
             _ax.set_yscale('log')
             _ax.set_xscale('log')
 
@@ -261,10 +291,10 @@ class Data:
 
 data_set = Data()
 
-print(data_set.get_standard_times())
-print(data_set.get_integration_table())
+#print(data_set.get_standard_times())
+#print(data_set.get_integration_table())
 print(data_set.get_concentration_table())
-data_set.plot_integration_table(True)
-data_set.plot_calibrated_samples()
-data_set.plot_all()
-print data_set.get_calibration_curves()
+#data_set.plot_integration_table(True)
+#data_set.plot_calibrated_samples()
+#data_set.plot_all()
+#print data_set.get_calibration_curves()
