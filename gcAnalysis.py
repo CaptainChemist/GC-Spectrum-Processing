@@ -5,10 +5,17 @@ import matplotlib.pyplot as plt
 import glob
 import re
 import peakdetect
+#12/21
+#sample_names = ["4 mM benzil", "4 mM benzil, 40 nM CdS", "4 mM benzil, 400 nM CdS", "4 mM benzil, 4000 nM CdS"]
+#12/29
+#sample_names = ["4 mM benzil", "4 mM benzil, 40 nM CdS", "4 mM benzil, 400 nM CdS", "4 mM benzil, 4000 nM CdS"]
+#01/04
+#sample_names = ["2 mM benzil", "2 mM benzil, 20 nM CdS", "2 mM benzil, 200 nM CdS", "2 mM benzil, 2000 nM CdS"]
+#01/06
+sample_names = ["1 mM benzil 1000 nM CdS", "1 mM benzil, 100 nM CdS", "1 mM benzil, 10 nM CdS", "1 mM benzil"]
 
-sample_names = ["4 mm benzil", "4 mm benzil, 40 nm CdS", "4 mm benzil, 400 nm CdS", "4 mm benzil, 4000 nm CdS"]
 controls_location = "./gc/controls/*.txt"
-samples_location = "./samples/2015-12-21/*.txt"
+samples_location = "./samples/2016-01-06/*.txt"
 header_length = 22
 number_of_samples = 4
 integration_range = 0.25
@@ -16,6 +23,8 @@ poly_calibration_fit_order = 1
 points_in_poly_fit = 5000
 concentration_to_find_time = 5000
 min_elution_time = 3.5
+sampling_frequency = 1
+convert_to_mM = 1000
 
 
 class Data:
@@ -92,7 +101,7 @@ class Data:
         self.standard_starts = {
             'control': 1.7325,
             '2PA' : 3.4845,
-            'benzil' : 4.17112,
+            'benzil' : 4.16,
             'rearranged benzil' : 4.53879
         }
 
@@ -265,16 +274,26 @@ class Data:
 
     # Plot the intensity data for each sample over time
     def plot_calibrated_samples(self):
-        _f, _axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
+        _f, _axs = plt.subplots(nrows=number_of_samples, ncols=1, sharex=True, sharey=True, figsize=(number_of_samples, number_of_samples))
+        _f.set_facecolor('white')
+
         _i = -1
         for _sample in self.concentration_table:
             _i = _i + 1
-            for _molecule in _sample:
-                _axs[_i].plot(_sample.index, _sample[_molecule] / 1000)
-                _axs[_i].set_ylabel('Concentration (mM)', fontsize=10)
-                _axs[_i].set_xlabel('Iteration', fontsize=10)
-                _axs[_i].set_title(sample_names[_i], fontsize=10)
+            _axs[_i].set_yticks(np.arange(0,2,0.5))
 
+            for _molecule in _sample:
+                _axs[_i].plot(_sample.index*sampling_frequency, _sample[_molecule] / convert_to_mM)
+                _axs[_i].set_title(sample_names[_i], fontsize=14)
+                _axs[_i].set_xlim([0,_sample.index[-1]])
+                plt.setp(_axs[_i].get_xticklabels(), visible=False)
+
+
+
+        plt.setp(_axs[_i].get_xticklabels(), visible=True)
+        _axs[_i].set_xlabel('Time (hr)', fontsize=14)
+        _f.text(0.02, 0.5, 'Concentration (mM)', va='center', ha='center', rotation='vertical', fontsize=14)
+        #_f.tight_layout()
         plt.show()
 
     # Plot the GC Elution Data
