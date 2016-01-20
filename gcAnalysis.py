@@ -6,20 +6,23 @@ import glob
 import re
 import peakdetect
 #12/21
-#sample_names = ["4 mM benzil", "4 mM benzil, 40 nM CdS", "4 mM benzil, 400 nM CdS", "4 mM benzil, 4000 nM CdS"]
+#sample_names = ["4 mM benzil, No CdS", "4 mM benzil, 40 nM CdS", "4 mM benzil, 400 nM CdS", "4 mM benzil, 4000 nM CdS"]
 #12/29
-#sample_names = ["4 mM benzil", "4 mM benzil, 40 nM CdS", "4 mM benzil, 400 nM CdS", "4 mM benzil, 4000 nM CdS"]
+#sample_names = ["4 mM benzil, No CdS", "4 mM benzil, 40 nM CdS", "4 mM benzil, 400 nM CdS", "4 mM benzil, 4000 nM CdS"]
 #01/04
-#sample_names = ["2 mM benzil", "2 mM benzil, 20 nM CdS", "2 mM benzil, 200 nM CdS", "2 mM benzil, 2000 nM CdS"]
+#sample_names = ["2 mM benzil, No CdS", "2 mM benzil, 20 nM CdS", "2 mM benzil, 200 nM CdS", "2 mM benzil, 2000 nM CdS"]
 #01/06
-sample_names = ["1 mM benzil 1000 nM CdS", "1 mM benzil, 100 nM CdS", "1 mM benzil, 10 nM CdS", "1 mM benzil"]
+sample_names = ["1 mM benzil 2000 nM CdS", "1 mM benzil, 200 nM CdS", "1 mM benzil, 20 nM CdS", "1 mM benzil, No CdS"]
+#01/19
+#sample_names = ["1 mM benzil, 2 mM MPA, 1000 nM CdS", "1 mM benzil, 2 mM MPA, 100 nM CdS", "1 mM benzil, 2 mM MPA, 10 nM CdS", "1 mM benzil, 2 mM MPA, No CdS"]
+
 
 controls_location = "./gc/controls/*.txt"
 samples_location = "./samples/2016-01-06/*.txt"
 header_length = 22
 number_of_samples = 4
 integration_range = 0.25
-poly_calibration_fit_order = 1
+poly_calibration_fit_order = 2
 points_in_poly_fit = 5000
 concentration_to_find_time = 5000
 min_elution_time = 3.5
@@ -41,6 +44,7 @@ class Data:
         _molecules = self.standard_starts.keys()
         _runs = np.arange(0, self.iteration_number - 1, 1)
         _intensity_table = [pd.DataFrame(index=_runs, columns=_molecules).fillna(0) for x in range(number_of_samples)]
+        print self.iteration_number
 
         for _molecule in _molecules:
             _i = -1
@@ -50,11 +54,11 @@ class Data:
                     _intensity_table[_i][_molecule][_run] = \
                         self.endpoints_calc_area(_sample['t' + str(_run)], _sample['i' + str(_run)],
                                        self.standard_starts[_molecule], self.standard_stops[_molecule])
-        print _intensity_table
+        #print _intensity_table
         _intensity_table = self.correct_control_peak(_intensity_table)
 
         self.concentration_table = self.calc_concentration(_intensity_table)
-        print self.concentration_table
+        #print self.concentration_table
 
     def calc_concentration(self, intensity_table):
         _i = -1
@@ -128,6 +132,7 @@ class Data:
                     = self.endpoints_calc_area(_molecule.time, _molecule.intensity,
                                      self.standard_starts[_molecule.name], self.standard_stops[_molecule.name])
 
+        print self.standard_integration_table
         # Subtract zero concentration
         _subtracted_calibration = pd.DataFrame(
                 self.standard_integration_table.values - self.standard_integration_table.iloc[0, :].values,
@@ -270,6 +275,11 @@ class Data:
             _ax.set_yscale('log')
             _ax.set_xscale('log')
 
+        _ax.set_xlim([-50,6000])
+        _ax.set_ylim([-1000,120000])
+        _f.set_facecolor('white')
+        _ax.set_xlabel('Concentration (microMolar)')
+        _ax.set_ylabel('Integrated Intensity')
         plt.show()
 
     # Plot the intensity data for each sample over time
@@ -280,7 +290,7 @@ class Data:
         _i = -1
         for _sample in self.concentration_table:
             _i = _i + 1
-            _axs[_i].set_yticks(np.arange(0,2,0.5))
+            _axs[_i].set_yticks(np.arange(0,5,.5))
 
             for _molecule in _sample:
                 _axs[_i].plot(_sample.index*sampling_frequency, _sample[_molecule] / convert_to_mM)
@@ -299,6 +309,8 @@ class Data:
     # Plot the GC Elution Data
     def plot_all(self):
         _f, _axs = plt.subplots(number_of_samples, sharex=True, sharey=True)
+        _f.set_facecolor('white')
+
 
         for _sample in range(number_of_samples):
             for _i in range(self.get_iteration_number()):
@@ -309,8 +321,10 @@ class Data:
 
 data_set = Data()
 
+data_set.save_all()
+
 #print(data_set.get_standard_times())
-print(data_set.get_integration_table())
+#print(data_set.get_integration_table())
 #print(data_set.get_concentration_table())
 #data_set.plot_integration_table()
 data_set.plot_calibrated_samples()
