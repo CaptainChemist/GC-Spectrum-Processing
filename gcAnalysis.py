@@ -12,20 +12,24 @@ import peakdetect
 #01/04
 #sample_names = ["2 mM benzil, No CdS", "2 mM benzil, 20 nM CdS", "2 mM benzil, 200 nM CdS", "2 mM benzil, 2000 nM CdS"]
 #01/06
-sample_names = ["1 mM benzil 2000 nM CdS", "1 mM benzil, 200 nM CdS", "1 mM benzil, 20 nM CdS", "1 mM benzil, No CdS"]
+#sample_names = ["1 mM benzil 2000 nM CdS", "1 mM benzil, 200 nM CdS", "1 mM benzil, 20 nM CdS", "1 mM benzil, No CdS"]
 #01/19
 #sample_names = ["1 mM benzil, 2 mM MPA, 1000 nM CdS", "1 mM benzil, 2 mM MPA, 100 nM CdS", "1 mM benzil, 2 mM MPA, 10 nM CdS", "1 mM benzil, 2 mM MPA, No CdS"]
+#02/16
+sample_names = ["4 mM benzyl alcohol, 4000 nM CdS", "4 mM benzyl alcohol, 400 nM CdS", "4 mM benzyl alcohol, 40 nM CdS", "4 mM benzyl alcohol, no CdS"]
+#02/17
+sample_names = ["4 mM benzyl alcohol, 4000 nM CdS", "4 mM benzyl alcohol, 400 nM CdS", "4 mM benzyl alcohol, 40 nM CdS", "4 mM benzyl alcohol, no CdS"]
 
 
-controls_location = "./gc/controls/*.txt"
-samples_location = "./samples/2016-01-06/*.txt"
+controls_location = "./samples/2016-02-17/controls/*.txt"
+samples_location = "./samples/2016-02-17/*.txt"
 header_length = 22
 number_of_samples = 4
 integration_range = 0.25
 poly_calibration_fit_order = 2
 points_in_poly_fit = 5000
 concentration_to_find_time = 5000
-min_elution_time = 3.5
+min_elution_time = 0
 sampling_frequency = 1
 convert_to_mM = 1000
 
@@ -103,17 +107,23 @@ class Data:
     # This creates a table of integrated intensities for each molecule and concentration
     def create_integration_table(self):
         self.standard_starts = {
-            'control': 1.7325,
-            '2PA' : 3.4845,
-            'benzil' : 4.16,
-            'rearranged benzil' : 4.53879
+            # 'control': 1.7325,
+            # '2PA' : 3.4845,
+            # 'benzil' : 4.16,
+            # 'rearranged benzil' : 4.53879
+            'control': 4.2,
+            'benzaldehyde': 0.428,
+            'benzylalcohol': 0.584
         }
 
         self.standard_stops = {
-            'control': 1.9514,
-            '2PA' : 3.79459,
-            'benzil' : 4.53879,
-            'rearranged benzil' : 5.3583
+            # 'control': 1.9514,
+            # '2PA' : 3.79459,
+            # 'benzil' : 4.53879,
+            # 'rearranged benzil' : 5.3583
+            'control': 4.4,
+            'benzaldehyde': 0.584,
+            'benzylalcohol': 0.830
         }
         # Find the concentrations and molecules present and create an empty calibration dataframe
         _concentrations = []
@@ -133,13 +143,14 @@ class Data:
                                      self.standard_starts[_molecule.name], self.standard_stops[_molecule.name])
 
         print self.standard_integration_table
+
         # Subtract zero concentration
         _subtracted_calibration = pd.DataFrame(
                 self.standard_integration_table.values - self.standard_integration_table.iloc[0, :].values,
                 columns=self.standard_integration_table.columns, index=self.standard_integration_table.index)
         self.standard_integration_table = _subtracted_calibration[1:]
 
-        self.standard_integration_table['rearranged benzil'] = self.standard_integration_table['benzil']
+        #self.standard_integration_table['rearranged benzil'] = self.standard_integration_table['benzil']
         print self.standard_integration_table
 
     # Calculates the area of a section of a X,Y 1D plot based on peak center and width
@@ -324,9 +335,9 @@ data_set = Data()
 data_set.save_all()
 
 #print(data_set.get_standard_times())
-#print(data_set.get_integration_table())
+print(data_set.get_integration_table())
 #print(data_set.get_concentration_table())
 #data_set.plot_integration_table()
-data_set.plot_calibrated_samples()
+#data_set.plot_calibrated_samples()
 #data_set.plot_all()
 #print data_set.get_calibration_curves()
